@@ -15,7 +15,9 @@ count = 0;
 
 %% generate data
 filepaths = dir(fullfile(folder,'*.png'));
+
 for i = 1 : length(filepaths)
+    disp(strcat('reading: ',filepaths(i).name))
     image = imread(fullfile(folder,filepaths(i).name));
     image = rgb2ycbcr(image);
     image = im2double(image(:, :, 1));
@@ -44,13 +46,17 @@ label = label(:, :, 1, order);
 %% writing to HDF5
 chunksz = 128;
 created_flag = false;
+totalct = 0;
+
+disp('writing data...')
 for batchno = 1:floor(count/chunksz)
     last_read=(batchno-1)*chunksz;
     batchdata = data(:,:,1,last_read+1:last_read+chunksz);
     batchlabs = label(:,:,1,last_read+1:last_read+chunksz);
 
     startloc = struct('dat',[1,1,1,totalct+1], 'lab', [1,1,1,totalct+1]);
-    #curr_dat_sz = store2hdf5(savepath, batchdata, batchlabs, ~created_flag, startloc, chunksz);
-    save ("-hdf5", savepath, batchdata, batchlabs, "-struct", "startloc")
+    curr_dat_sz = store2hdf5(savepath, batchdata, batchlabs, ~created_flag, startloc, chunksz);
+    created_flag = true;
+    totalct = curr_dat_sz(end);
 end
 #h5disp(savepath);
