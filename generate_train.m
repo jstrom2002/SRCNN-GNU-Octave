@@ -1,4 +1,5 @@
 clear;close all;
+pkg load image;
 %% settings
 folder = 'C:/Users/jeff/Downloads/DIV2K_train_HR';
 savepath = 'train.h5';
